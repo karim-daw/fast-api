@@ -36,8 +36,8 @@ def get_posts():
     return {"data": my_posts}
 
 
-@app.post("/posts")
-def get_create_ports(post: Post):
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
+def get_create_posts(post: Post):
 
     # convert to dict and add random id
     post_dict = post.dict()
