@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
@@ -48,7 +48,11 @@ def get_create_ports(post: Post):
 
 # getting singular post
 @app.get("/posts/{id}")
-def get_post(id):
-    post = find_post(int(id))
+def get_post(id: int, response: Response):
+
+    post = find_post(id)
+    if not post:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {'message': f"post with id: {id} was not found"}
     return {"post_detail": post}
 
