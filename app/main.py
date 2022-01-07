@@ -42,7 +42,7 @@ def get_posts():
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def get_create_posts(post: Post):
+def create_posts(post: Post):
 
     # convert to dict and add random id
     post_dict = post.dict()
@@ -61,7 +61,7 @@ def get_post(id: int, response: Response):
                             detail=f"post with id: {id} was not found")
     return {"post_detail": post}
 
-
+# deleteing a post
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
     # delete post
@@ -73,6 +73,7 @@ def delete_post(id: int):
     my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+# updating a post
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
     print(post)
