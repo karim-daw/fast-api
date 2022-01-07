@@ -72,3 +72,8 @@ def delete_post(id: int):
             status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id:{id} does not exist")
     my_posts.pop(index)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@app.put("/posts/{id}")
+def update_post(id: int, post: Post):
+    print(post)
+    return {'message': "updated post"}
