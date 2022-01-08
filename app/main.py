@@ -22,25 +22,28 @@ my_posts = [
 ]
 
 def find_post(id):
+    """ find post based on id"""
     for p in my_posts:
         if p["id"] == id:
             return p
 
 def find_index_post(id):
+    """given an id, finds index of given post"""
     for i, p in enumerate(my_posts):
         if p['id'] == id:
             return i 
 
+# root end point
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-
+# get all posts
 @app.get("/posts")
 def get_posts():
     return {"data": my_posts}
 
-
+# create post with random id
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
 
@@ -67,6 +70,7 @@ def delete_post(id: int):
     # delete post
     # find the index in the array that has required ID
     index = find_index_post(id)
+
     if index == None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id:{id} does not exist")
