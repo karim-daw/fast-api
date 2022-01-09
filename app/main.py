@@ -16,6 +16,8 @@ class Post(BaseModel):
     content: str
     published: bool = True
 
+# connecting with database
+# later we need to not hardcode database information
 while True:
 
     try:
@@ -61,7 +63,12 @@ async def root():
 # get all posts
 @app.get("/posts")
 def get_posts():
-    return {"data": my_posts}
+    # make sql query and fetch data from db with curser
+    curser.execute("""SELECT * FROM posts """)
+    posts = curser.fetchall()
+
+    #print(posts)
+    return {"data": posts}
 
 # create post with random id
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
