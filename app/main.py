@@ -1,15 +1,31 @@
 from typing import Optional
 from fastapi import FastAPI, Response, status, HTTPException
-from fastapi.params import Body
+from fastapi.params import Body, Depends
 from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from sqlalchemy.orm import Session
+from . import models
+from .database import SessionLocal, engine
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
 
+models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
+
+# Dependancy
+# The session object talks to databse, we get a session for the database everytime we get request
+# more efficient, we keep calling this function everytime we get a request to api end points
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 class Post(BaseModel):
     title: str
@@ -19,7 +35,6 @@ class Post(BaseModel):
 # connecting with database
 # later we need to not hardcode database information
 while True:
-
     try:
         conn = psycopg2.connect(
             host = 'localhost',
@@ -61,6 +76,11 @@ def find_index_post(id):
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+# root end point
+@app.get("/sqlalchemy")
+def test_posts(db: Session = Depends(get_db)):
+    return {"status": "Success World"}
 
 
 # get all posts
