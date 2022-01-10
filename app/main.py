@@ -8,24 +8,14 @@ from psycopg2.extras import RealDictCursor
 import time
 from sqlalchemy.orm import Session
 from . import models
-from .database import SessionLocal, engine
+from .database import engine, get_db
+
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-# Dependancy
-# The session object talks to databse, we get a session for the database everytime we get request
-# more efficient, we keep calling this function everytime we get a request to api end points
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 class Post(BaseModel):
     title: str

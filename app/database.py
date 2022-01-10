@@ -11,3 +11,13 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+# Dependancy
+# The session object talks to databse, we get a session for the database everytime we get request
+# more efficient, we keep calling this function everytime we get a request to api end points
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
