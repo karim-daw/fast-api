@@ -70,7 +70,11 @@ async def root():
 # root end point
 @app.get("/sqlalchemy")
 def test_posts(db: Session = Depends(get_db)):
-    return {"status": "Success World"}
+
+    posts = db.query(models.Post).all()
+
+
+    return {"data": posts}
 
 
 # get all posts
