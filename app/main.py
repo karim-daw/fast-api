@@ -17,6 +17,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Pydantic model, it will ensure that the data is valid for the schema 
 class Post(BaseModel):
     title: str
     content: str
@@ -73,16 +74,18 @@ def test_posts(db: Session = Depends(get_db)):
 
     posts = db.query(models.Post).all()
 
-
     return {"data": posts}
 
 
 # get all posts
 @app.get("/posts")
-def get_posts():
+def get_posts(db: Session = Depends(get_db)):
     # make sql query and fetch data from db with curser
-    curser.execute("""SELECT * FROM posts """)
-    posts = curser.fetchall()
+
+    # curser.execute("""SELECT * FROM posts """)
+    # posts = curser.fetchall()
+    posts = db.query(models.Post).all()
+
 
     #print(posts)
     return {"data": posts}
@@ -90,19 +93,29 @@ def get_posts():
 
 # create post 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post):
+def create_posts(post: Post, db: Session = Depends(get_db)):
 
-    # sanitzing input so we are not vunerable to sql injections used %s
-    curser.execute(
-        """INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
-        (post.title, post.content, post.published))
+    # # sanitzing input so we are not vunerable to sql injections used %s
+    # curser.execute(
+    #     """INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
+    #     (post.title, post.content, post.published))
     
-    # get returned value 
-    new_post = curser.fetchone()
+    # # get returned value 
+    # new_post = curser.fetchone()
     
-    # push changes to db
-    conn.commit()
+    # # push changes to db
+    # conn.commit()
 
+    # unpack dictionary using **kwargs
+    #print(**post.dict())
+    new_post = models.Post(**post.dict())
+    
+    # add post to db and commit 
+    db.add(new_post)
+    db.commit()
+
+    # retrieve new post and store it back into variable new_post
+    db.refresh(new_post)
     return {"data": new_post}
 
 
