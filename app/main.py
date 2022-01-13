@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body, Depends
 from pydantic import BaseModel
@@ -16,8 +16,6 @@ from .database import engine, get_db
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-
 
 # connecting with database
 # later we need to not hardcode database information
@@ -39,26 +37,6 @@ while True:
         time.sleep(2)
 
 
-# for not just save posts to memeory
-my_posts = [
-    {"title": "title of post 1", "content": "content of post 1", "id": 1},
-    {"title": "favorite foods", "content": "I like pizza", "id": 2},
-]
-
-def find_post(id):
-    """ find post based on id"""
-    for p in my_posts:
-        if p["id"] == id:
-            return p
-
-
-def find_index_post(id):
-    """given an id, finds index of given post"""
-    for i, p in enumerate(my_posts):
-        if p['id'] == id:
-            return i 
-
-
 # root end point
 @app.get("/")
 async def root():
@@ -66,18 +44,16 @@ async def root():
 
 
 # get all posts
-@app.get("/posts")
+@app.get("/posts", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
 
     posts = db.query(models.Post).all()
 
-
     #print(posts)
-    return {"data": posts}
-
+    return posts
 
 # create post 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
+@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
 
     new_post = models.Post(**post.dict())
@@ -88,18 +64,19 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
 
     # retrieve new post and store it back into variable new_post
     db.refresh(new_post)
-    return {"data": new_post}
+    return new_post
 
 
 # getting singular post
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=schemas.Post)
 def get_post(id: int, db: Session = Depends(get_db)):
     
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"post with id: {id} was not found")
-    return {"post_detail": post}
+    return post
+
 
 # deleting a post
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -113,11 +90,11 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     # worth reading about in doc under "session basics"
     post.delete(synchronize_session=False)
     db.commit()
-
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 # updating a post
-@app.put("/posts/{id}")
+@app.put("/posts/{id}", response_model=schemas.Post)
 def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
@@ -130,5 +107,4 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     # if post exists, use update() to update with post from user 
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
-
-    return {'data': post_query.first()}
+    return post_query.first()
