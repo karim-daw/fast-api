@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
 from sqlalchemy.orm import Session
-from . import models
+from . import models, schemas
 from .database import engine, get_db
 
 # use uvicorn main:app to start production server
@@ -17,11 +17,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Pydantic model, it will ensure that the data is valid for the schema 
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
+
 
 # connecting with database
 # later we need to not hardcode database information
