@@ -64,22 +64,11 @@ def find_index_post(id):
 async def root():
     return {"message": "Hello World"}
 
-# root end point
-@app.get("/sqlalchemy")
-def test_posts(db: Session = Depends(get_db)):
-
-    posts = db.query(models.Post).all()
-
-    return {"data": posts}
-
 
 # get all posts
 @app.get("/posts")
 def get_posts(db: Session = Depends(get_db)):
-    # make sql query and fetch data from db with curser
 
-    # curser.execute("""SELECT * FROM posts """)
-    # posts = curser.fetchall()
     posts = db.query(models.Post).all()
 
 
@@ -89,21 +78,8 @@ def get_posts(db: Session = Depends(get_db)):
 
 # create post 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post, db: Session = Depends(get_db)):
+def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
 
-    # # sanitzing input so we are not vunerable to sql injections used %s
-    # curser.execute(
-    #     """INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
-    #     (post.title, post.content, post.published))
-    
-    # # get returned value 
-    # new_post = curser.fetchone()
-    
-    # # push changes to db
-    # conn.commit()
-
-    # unpack dictionary using **kwargs
-    #print(**post.dict())
     new_post = models.Post(**post.dict())
     
     # add post to db and commit 
@@ -119,11 +95,6 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
 @app.get("/posts/{id}")
 def get_post(id: int, db: Session = Depends(get_db)):
     
-    # # select post with specif id
-    # curser.execute("""SELECT * FROM posts WHERE id = %s """, (str(id)))
-    # post = curser.fetchone()
-    
-    # find first post with id
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -134,10 +105,6 @@ def get_post(id: int, db: Session = Depends(get_db)):
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int, db: Session = Depends(get_db)):
 
-    # # delete post
-    # curser.execute("""DELETE FROM posts WHERE id = %s returning *""", (str(id)) )
-    # delete_post = curser.fetchone()
-    # conn.commit()
     post = db.query(models.Post).filter(models.Post.id == id)
 
     if post.first() == None:
@@ -151,16 +118,8 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 # updating a post
 @app.put("/posts/{id}")
-def update_post(id: int, updated_post: Post, db: Session = Depends(get_db)):
+def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)):
 
-    # curser.execute(
-    #     """UPDATE posts SET title = %s,content = %s, published = %s WHERE id = %s RETURNING *""",
-    #     (post.title,post.content, post.published, str(id)))
-
-    # updated_posts = curser.fetchone()
-    # conn.commit()
-    
-    # query db with specific id and get first obejct with that id
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 
