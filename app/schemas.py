@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 # Pydantic model, it will ensure that the data is valid for the schema
@@ -15,6 +15,19 @@ class PostCreate(PostBase):
 class Post(PostBase):
     id: int
     created_at: datetime
+
+    # tells pydantic to ignore the fact that it isnt a dict
+    class Config:
+        orm_mode = True
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
 
     # tells pydantic to ignore the fact that it isnt a dict
     class Config:

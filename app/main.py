@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 
 # use uvicorn main:app to start production server
@@ -108,3 +108,21 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
     return post_query.first()
+
+# create post 
+@app.post("/users", status_code=status.HTTP_201_CREATED,response_model=schemas.UserOut)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+
+    # create hash of password - user.passowrd and update pydantic user.password model
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
+
+    new_user = models.User(**user.dict())
+    
+    # add post to db and commit 
+    db.add(new_user)
+    db.commit()
+
+    # retrieve new post and store it back into variable new_post
+    db.refresh(new_user)
+    return new_user
