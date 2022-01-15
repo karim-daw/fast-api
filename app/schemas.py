@@ -24,10 +24,12 @@ class Post(PostBase):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    created_at: datetime
 
 class UserOut(BaseModel):
     id: int
     email: EmailStr
+    created_at: datetime
 
     # tells pydantic to ignore the fact that it isnt a dict
     class Config:

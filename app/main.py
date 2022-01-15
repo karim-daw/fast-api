@@ -109,7 +109,7 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     db.commit()
     return post_query.first()
 
-# create post 
+# create user 
 @app.post("/users", status_code=status.HTTP_201_CREATED,response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
@@ -126,3 +126,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # retrieve new post and store it back into variable new_post
     db.refresh(new_user)
     return new_user
+
+# getting single user
+@app.get("/users/{id}", response_model= schemas.UserOut)
+def get_post(id: int, db: Session = Depends(get_db)):
+    
+    post = db.query(models.User).filter(models.User.id == id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id: {id} was not found")
+    return post
