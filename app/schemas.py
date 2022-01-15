@@ -24,7 +24,6 @@ class Post(PostBase):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-    created_at: datetime
 
 class UserOut(BaseModel):
     id: int
