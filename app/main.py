@@ -9,7 +9,7 @@ import time
 from sqlalchemy.orm import Session
 from . import models, schemas, utils
 from .database import engine, get_db
-from .routers import post, user
+from .routers import post, user, auth
 
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
@@ -40,6 +40,8 @@ while True:
 # import all routers
 app.include_router(post.router)
 app.include_router(user.router)
+app.include_router(auth.router)
+
 
 # root end point
 @app.get("/")

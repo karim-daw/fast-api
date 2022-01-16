@@ -33,3 +33,7 @@ class UserOut(BaseModel):
     # tells pydantic to ignore the fact that it isnt a dict
     class Config:
         orm_mode = True
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
