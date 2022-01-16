@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from fastapi.params import Body, Depends
 
 router = APIRouter(
-    prefix= "/users"
+    prefix= "/users",
+    tags=['Users']
 )
 
 # create user 
