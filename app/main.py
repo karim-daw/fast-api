@@ -126,3 +126,5 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # retrieve new post and store it back into variable new_post
     db.refresh(new_user)
     return new_user
+
+    # this is a test
