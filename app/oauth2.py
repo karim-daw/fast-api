@@ -2,10 +2,11 @@ from typing import Dict
 import fastapi
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from . import schemas
+from . import schemas, database
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from app import schemas
+from sqlalchemy.orm import Session
 
 # here you have to provide your login end point 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
@@ -17,7 +18,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 # using - openssl rand -hex 32
 SECRET_KEY = "481495a86cf3e0ee73cb7abcec6cc87c233c6a26e5ed109606f9646c15f7b09e"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPERIRATION_MINUTES = 30
+ACCESS_TOKEN_EXPERIRATION_MINUTES = 1
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -46,7 +47,9 @@ def verify_access_token(token: str, credentials_exception):
     
     return token_data
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme),
+    db: Session = Depends(database.get_db)):
+
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not valiate credientials",
         headers={"WWW-Authenticate": "Bearer"})
