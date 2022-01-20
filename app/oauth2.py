@@ -7,6 +7,7 @@ from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from app import schemas
 
+# here you have to provide your login end point 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
 # SECRET KEY
