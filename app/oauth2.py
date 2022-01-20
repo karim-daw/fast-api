@@ -1,8 +1,9 @@
+from pyexpat import model
 from typing import Dict
 import fastapi
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from . import schemas, database
+from . import schemas, database, models
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from app import schemas
@@ -18,7 +19,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 # using - openssl rand -hex 32
 SECRET_KEY = "481495a86cf3e0ee73cb7abcec6cc87c233c6a26e5ed109606f9646c15f7b09e"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPERIRATION_MINUTES = 1
+ACCESS_TOKEN_EXPERIRATION_MINUTES = 60
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -53,5 +54,10 @@ def get_current_user(token: str = Depends(oauth2_scheme),
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not valiate credientials",
         headers={"WWW-Authenticate": "Bearer"})
+    
+    token = verify_access_token(token, credential_exception)
 
-    return verify_access_token(token, credential_exception)
+    # query database and return current user
+    user = db.query(models.User).filter(models.User.id == token.id).first()
+
+    return user
