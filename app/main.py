@@ -9,6 +9,7 @@ import time
 from sqlalchemy.orm import Session
 from . import models, schemas, utils
 from .database import engine, get_db
+from .routers import post, user, auth
 
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
@@ -36,12 +37,18 @@ while True:
         print("Error; ", error)
         time.sleep(2)
 
+# import all routers
+app.include_router(post.router)
+app.include_router(user.router)
+app.include_router(auth.router)
+
 
 # root end point
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+"""<<<<<<< HEAD
 
 # get all posts
 @app.get("/posts", response_model=List[schemas.Post])
@@ -128,3 +135,6 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
     # this is a test
+=======
+>>>>>>> af132d0041ac95ec6f88029fc5eb95f5731bd7fb
+"""
