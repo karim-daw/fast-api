@@ -16,6 +16,7 @@ class PostCreate(PostBase):
 class Post(PostBase):
     id: int
     created_at: datetime
+    owner_id: int
 
     # tells pydantic to ignore the fact that it isnt a dict
     class Config:
