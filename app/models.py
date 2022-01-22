@@ -1,7 +1,8 @@
+from tkinter import CASCADE
 from sqlalchemy.sql.expression import text, true
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from .database import Base
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, Integer, String, Boolean
 
 # this is sqlalchemy model
 
@@ -13,6 +14,7 @@ class Post(Base):
     content = Column(String, nullable=False)
     published = Column(Boolean, server_default='TRUE',nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
+    owner_id = Column(Integer, ForeignKey("users.id",ondelete=CASCADE), nullable=False)
 
 class User(Base):
     __tablename__ = "users"
