@@ -31,7 +31,3 @@ class User(Base):
 
 
 
-
-    
-
-
