@@ -18,11 +18,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 # Expiration time
 
 # using - openssl rand -hex 32
+
+# get environment variables
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPERIRATION_MINUTES = settings.access_token_expire_minutes
 
 def create_access_token(data: dict):
+    
     """returns access tokon as an encoded jwty from given data dictionary"""
 
     to_encode = data.copy()
@@ -35,7 +38,9 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 def verify_access_token(token: str, credentials_exception):
-    """returns token data as verificaiton given an access token"""
+
+    """returns token data as verificaiton given an access token, if failure
+    raises credential exception error"""
     
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
@@ -52,8 +57,8 @@ def verify_access_token(token: str, credentials_exception):
     
     return token_data
 
-def get_current_user(token: str = Depends(oauth2_scheme),
-    db: Session = Depends(database.get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme),db: Session = Depends(database.get_db)):
+
     """returns user from db given a token dependancy from oauth2_scheme"""
 
     # define credential exception in case token (credentials) can not be verified

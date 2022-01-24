@@ -5,8 +5,9 @@ from .database import Base
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 
-# this is sqlalchemy model
+# these is sqlalchemy model
 
+"""Post data model"""
 class Post(Base):
     __tablename__ = "posts"
 
@@ -20,7 +21,7 @@ class Post(Base):
     # create a owner property that creates a relationship to User class
     owner = relationship("User")
 
-
+"""User data model"""
 class User(Base):
     __tablename__ = "users"
 

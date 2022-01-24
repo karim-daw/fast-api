@@ -5,37 +5,26 @@ from sqlalchemy.orm import Session
 from fastapi.params import Body, Depends
 from typing import List, Optional
 
+# define router endpoint and documentaition tags
+router = APIRouter( prefix="/posts", tags=['Posts'] )
 
-router = APIRouter(
-    prefix="/posts",
-    tags=['Posts']
-)
-
-# get all posts
 @router.get("/", response_model=List[schemas.Post])
-def get_posts(
-    db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user),
-    limit: int = 10,
-    skip: int = 0,
-    search: Optional[str] = ""):
+def get_posts(db: Session = Depends(get_db),current_user: int = Depends(oauth2.get_current_user),
+    limit: int = 10,skip: int = 0, search: Optional[str] = ""):
 
-    print(search)
+    """returns all posts given a post limit count, amoutn of posts to skip, and search string"""
 
     # only retrieve posts if it comes for current user
     posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
 
-    #print(posts)
     return posts
 
-# create post 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-def create_posts(post: schemas.PostCreate,
-    db: Session = Depends(get_db),
+def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user)): # dependancy forces logged in
 
+    """creates new post given a post schema, db dependancy and that current user is logged in"""
 
-    #print(current_user.id)
     # create new post from unpacking post.dict()
     new_post = models.Post(owner_id = current_user.id , **post.dict())
 
@@ -50,9 +39,11 @@ def create_posts(post: schemas.PostCreate,
 
 # getting singular post
 @router.get("/{id}", response_model=schemas.Post)
-def get_post(id: int, db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user)):
+def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     
+    """returns post given id, db dependancy and that current user is logged in"""
+
+    # retrieve first post with given id, otherwise raise 404
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -60,11 +51,10 @@ def get_post(id: int, db: Session = Depends(get_db),
     
     return post
 
-
-# deleting a post
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_db),
-    current_user: int = Depends(oauth2.get_current_user)):
+def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+
+    """deletes post given id, db dependancy and that current user is logged in"""
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
@@ -83,15 +73,16 @@ def delete_post(id: int, db: Session = Depends(get_db),
     # worth reading about in doc under "session basics"
     post_query.delete(synchronize_session=False)
     db.commit()
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # updating a post
 @router.put("/{id}", response_model=schemas.Post)
-def update_post(id: int, updated_post: schemas.PostCreate,
-    db: Session = Depends(get_db),
+def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user)):
 
+    """updates post given an id, a PostCreate Schema and db dependancy"""
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 
@@ -109,4 +100,5 @@ def update_post(id: int, updated_post: schemas.PostCreate,
     # if post exists, use update() to update with post from user 
     post_query.update(updated_post.dict(), synchronize_session=False)
     db.commit()
+
     return post_query.first()

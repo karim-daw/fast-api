@@ -2,9 +2,10 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
-
 # Pydantic model, it will ensure that the data is valid for the schema
 # you can create differnet mdoels for different requests so that for more flexibility
+
+"""User data classes"""
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
@@ -23,6 +24,7 @@ class UserLogin(BaseModel):
     password: str
 
 
+"""Post data classes"""
 class PostBase(BaseModel):
     title: str
     content: str
@@ -44,8 +46,7 @@ class Post(PostBase):
         orm_mode = True
 
 
-
-
+"""Token data class"""
 class Token(BaseModel):
     access_token: str
     token_type: str
