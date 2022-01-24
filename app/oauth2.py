@@ -54,14 +54,16 @@ def verify_access_token(token: str, credentials_exception):
 
 def get_current_user(token: str = Depends(oauth2_scheme),
     db: Session = Depends(database.get_db)):
+    """returns user from db given a token dependancy from oauth2_scheme"""
 
+    # define credential exception in case token (credentials) can not be verified
     credential_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not valiate credientials",
+        status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not valiate credentials",
         headers={"WWW-Authenticate": "Bearer"})
     
-    token = verify_access_token(token, credential_exception)
+    token_data = verify_access_token(token, credential_exception)
 
     # query database and return current user
-    user = db.query(models.User).filter(models.User.id == token.id).first()
+    user = db.query(models.User).filter(models.User.id == token_data.id).first()
 
     return user
