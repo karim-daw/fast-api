@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
+from pydantic.types import conint
 
 # Pydantic model, it will ensure that the data is valid for the schema
 # you can create differnet mdoels for different requests so that for more flexibility
@@ -53,3 +54,11 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
+
+
+""" Vote data class"""
+class Vote(BaseModel):
+    post_id: int
+
+    # restricting to only 0 and 1
+    dir: conint(gt = 0, le=1)
