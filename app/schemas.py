@@ -61,4 +61,5 @@ class Vote(BaseModel):
     post_id: int
 
     # restricting to only 0 and 1
-    dir: conint(gt = 0, le=1)
+    # dont really know what ge or le stands for
+    dir: conint(ge = 0, le=1)
