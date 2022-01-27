@@ -83,6 +83,7 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     current_user: int = Depends(oauth2.get_current_user)):
 
     """updates post given an id, a PostCreate Schema and db dependancy"""
+    
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 
