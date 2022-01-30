@@ -1,9 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
 from .config import settings
 
 
@@ -31,7 +28,7 @@ def get_db():
 # later we need to not hardcode database information
 """while True:
     try:
-        
+
         conn = psycopg2.connect(
             host = 'localhost',
             database = 'fastapi',
