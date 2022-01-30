@@ -46,6 +46,13 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    # tells pydantic to ignore the fact that it isnt a dict
+    class Config:
+        orm_mode = True
 
 """Token data class"""
 class Token(BaseModel):

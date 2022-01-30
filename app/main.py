@@ -6,7 +6,7 @@ from .config import settings
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
