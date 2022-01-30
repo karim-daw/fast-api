@@ -31,6 +31,7 @@ def get_db():
 # later we need to not hardcode database information
 """while True:
     try:
+        
         conn = psycopg2.connect(
             host = 'localhost',
             database = 'fastapi',
