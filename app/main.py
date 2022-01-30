@@ -3,12 +3,26 @@ from . import models
 from .database import engine
 from .routers import post, user, auth, vote
 from .config import settings
+from fastapi.middleware.cors import CORSMiddleware
+
+
 # use uvicorn main:app to start production server
 # use uvicorn main:app --reload to start development server
 
 # models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# cors policies
+origins = ["*"] # declare which origins can access api * wpould mean public api
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # 
+    allow_headers=["*"],
+)
 
 # import all routers
 app.include_router(post.router)
