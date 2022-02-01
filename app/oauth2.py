@@ -1,6 +1,4 @@
 from pyexpat import model
-from typing import Dict
-import fastapi
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from . import schemas, database, models

@@ -6,7 +6,6 @@ from .config import settings
 
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
-
 # use conenction string in engine 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
