@@ -5,6 +5,7 @@ from ..database import get_db
 from sqlalchemy.orm import Session
 from fastapi.params import Body, Depends
 from typing import List, Optional
+from sqlalchemy import desc
 
 # define router endpoint and documentaition tags
 router = APIRouter( prefix="/posts", tags=['Posts'] )
@@ -20,7 +21,12 @@ def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.
 
     posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
         models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(
-            models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+            models.Post.id).filter(models.Post.title.contains(search)).order_by(
+                desc(models.Post.created_at)).limit(limit).offset(skip).all()
+
+    # posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+    #     models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(
+    #         models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     #print(results)
 
     return posts
@@ -54,9 +60,10 @@ def get_post(id: int, db: Session = Depends(get_db), current_user: int = Depends
     #post = db.query(models.Post).filter(models.Post.id == id).first()
 
 
-    post = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
-    models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(
-        models.Post.id).filter(models.Post.id == id).first()
+    post = db.query(models.Post,
+        func.count(models.Vote.post_id).label("votes")).join(
+            models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(
+                models.Post.id).filter(models.Post.id == id).first()
 
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
