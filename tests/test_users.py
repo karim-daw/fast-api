@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy import create_engine
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
@@ -17,8 +18,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# this will populate test db with all our tables
-Base.metadata.create_all(bind=engine)
+
 
 # Dependancy
 # The session object talks to databse, we get a session for the database everytime we get request
@@ -34,20 +34,29 @@ def override_get_db():
 # this will swap the dependancies out so that we can use a test
 app.dependency_overrides[get_db] = override_get_db
 
+# fixtures
+@pytest.fixture
+def client():
+    # run our code before we run our test
+    # this will populate test db with all our tables
+    Base.metadata.create_all(bind=engine)
 
-client = TestClient(app)
+    yield TestClient(app)
 
-def test_root():
+    # run our code after our test finishes
+    # this will populate test db with all our tables
+    Base.metadata.drop_all(bind=engine)
+
+def test_root(client):
     res = client.get("/")
     assert res.json().get('message') == "Hello World, im Karim!!!"
     assert res.status_code == 200
 
-def test_create_user():
+def test_create_user(client):
     res = client.post("/users/", json={"email": "hello123@gmail.com", "password":"password123"})
 
     # this will automatically do valiadation for us with all user out attributes
     new_user = schemas.UserOut(**res.json())
-    print(new_user)
 
     assert new_user.email == "hello123@gmail.com"
     assert res.status_code == 201
