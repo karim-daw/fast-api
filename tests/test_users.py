@@ -1,78 +1,45 @@
-from fastapi.testclient import TestClient
+import email
 import pytest
-from sqlalchemy import create_engine
-import sqlalchemy
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from app.main import app
 from app import schemas
-from app.config import settings
-from app.database import get_db
-from app.database import Base
+from .database import client, session
 
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}_test"
-# use conenction string in engine 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+@pytest.fixture()
+def test_user(client):
 
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    # create dummy user data
+    user_data = {
+        "email": "hello123@gmail.com",
+        "password": "password123"
+    }
+    # create user with api
+    res = client.post("/users/", json=user_data)
+    assert res.status_code == 201
 
-
-
-# Dependancy
-# The session object talks to database, we get a session for the database everytime we get request
-# more efficient, we keep calling this function everytime we get a request to api end points
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-
-# fixture that returns database
-@pytest.fixture
-def session():
-    # this will drop test db with all our tables
-    Base.metadata.drop_all(bind=engine)
-    # this will populate test db with all our tables
-    Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-# fixture that returns client
-@pytest.fixture
-def client(session):
-    def override_get_db():
-        try:
-            yield session
-        finally:
-            session.close()
-            
-    # overriding database dependancy
-    app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
-
+    # we pass in password too because doesnt its not ruturned in create user 
+    new_user = res.json()
+    new_user['password'] = user_data["password"]
+    return new_user
 
 def test_root(client):
     res = client.get("/")
     assert res.json().get('message') == "Hello World, im Karim!!!"
     assert res.status_code == 200
 
+
 def test_create_user(client):
     res = client.post("/users/", json={"email": "hello123@gmail.com", "password":"password123"})
 
     # this will automatically do valiadation for us with all user out attributes
     new_user = schemas.UserOut(**res.json())
-
     assert new_user.email == "hello123@gmail.com"
     assert res.status_code == 201
 
     
+def test_login_user(client, test_user):
+
+    # data is for formdata, json is for jsondata
+    res = client.post("/login", data={"username": test_user["email"], "password": test_user["password"]})
+    print(res.json())
+    assert res.status_code == 200
 
