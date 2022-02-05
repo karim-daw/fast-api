@@ -21,7 +21,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 # Dependancy
-# The session object talks to databse, we get a session for the database everytime we get request
+# The session object talks to database, we get a session for the database everytime we get request
 # more efficient, we keep calling this function everytime we get a request to api end points
 def override_get_db():
     db = TestingSessionLocal()
@@ -30,22 +30,35 @@ def override_get_db():
     finally:
         db.close()
 
-# overriding database dependancy
-# this will swap the dependancies out so that we can use a test
-app.dependency_overrides[get_db] = override_get_db
 
-# fixtures
+
+# fixture that returns database
 @pytest.fixture
-def client():
-    # run our code before we run our test
+def session():
+    # this will drop test db with all our tables
+    Base.metadata.drop_all(bind=engine)
     # this will populate test db with all our tables
     Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
+
+# fixture that returns client
+@pytest.fixture
+def client(session):
+    def override_get_db():
+        try:
+            yield session
+        finally:
+            session.close()
+            
+    # overriding database dependancy
+    app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
 
-    # run our code after our test finishes
-    # this will populate test db with all our tables
-    Base.metadata.drop_all(bind=engine)
 
 def test_root(client):
     res = client.get("/")

@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 # cors policies
-origins = ["*"] # declare which origins can access api * wpould mean public api
+origins = ["*"] # declare which origins can access api * would mean public api
 
 app.add_middleware(
     CORSMiddleware,
