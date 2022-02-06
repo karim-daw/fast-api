@@ -1,4 +1,3 @@
-from pyexpat import model
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from . import schemas, database, models

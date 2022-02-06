@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
-from app import schemas
+from app import models
 from app.config import settings
 from app.database import get_db
 from app.database import Base
@@ -19,7 +19,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 # fixture that returns database
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def session():
     # this will drop test db with all our tables
     Base.metadata.drop_all(bind=engine)
@@ -32,9 +32,9 @@ def session():
         db.close()
 
 
-# fixture that returns client
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def client(session):
+    """fixture that returns app client"""
     def override_get_db():
         try:
             yield session
@@ -45,9 +45,10 @@ def client(session):
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
 
-# fixture that creates a test user
+
 @pytest.fixture()
 def test_user(client):
+    """fixture that creates test user"""
 
     # create dummy user data
     user_data = {
@@ -63,9 +64,12 @@ def test_user(client):
     new_user['password'] = user_data["password"]
     return new_user
 
+
 @pytest.fixture()
 def token(test_user):
-    create_access_token({"user_id": test_user['id']})
+    """fixture that creates taken from test_user fixture"""
+    return create_access_token({"user_id": test_user['id']})
+
 
 @pytest.fixture()
 def authorized_client(client, token):
@@ -76,3 +80,25 @@ def authorized_client(client, token):
         **client.headers,
         "Authorization": f"Bearer {token}"
     }
+    return client
+
+@pytest.fixture
+def test_posts(test_user, session):
+    posts_data = [{
+        "title": "first title",
+        "content": "first content",
+        "owner_id": test_user['id']
+    },{
+        "title": "2nd title",
+        "content": "2nd content",
+        "owner_id": test_user['id']
+    },{
+        "title": "3rd title",
+        "content": "3rd content",
+        "owner_id": test_user['id']
+    }]
+
+    # decompose **kwargs for models.Post() for each entry, conver to list, add to db
+    posts = list(map(lambda post: models.Post(**post), posts_data))
+    session.add_all(posts)
+    session.commit()
