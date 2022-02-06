@@ -7,6 +7,7 @@ from app import schemas
 from app.config import settings
 from app.database import get_db
 from app.database import Base
+from app.oauth2 import create_access_token
 
 
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
@@ -44,7 +45,7 @@ def client(session):
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
 
-
+# fixture that creates a test user
 @pytest.fixture()
 def test_user(client):
 
@@ -62,11 +63,16 @@ def test_user(client):
     new_user['password'] = user_data["password"]
     return new_user
 
-def test_incorrect_login(test_user, client):
-    res = client.post("/login",
-        data = {
-            "username": test_user['email'],
-            "password": test_user["wrong passowrd"]
-        })
-    assert res.status_code == 403
-    assert res.json().get('detail') == 'Invalid Credentials'
+@pytest.fixture()
+def token(test_user):
+    create_access_token({"user_id": test_user['id']})
+
+@pytest.fixture()
+def authorized_client(client, token):
+    # update client headers
+    # take original client headers and simply adding Authorization header
+    # from token dixture
+    client.headers = {
+        **client.headers,
+        "Authorization": f"Bearer {token}"
+    }
