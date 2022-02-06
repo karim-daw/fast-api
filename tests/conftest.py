@@ -102,3 +102,5 @@ def test_posts(test_user, session):
     posts = list(map(lambda post: models.Post(**post), posts_data))
     session.add_all(posts)
     session.commit()
+    
+    return posts
