@@ -66,6 +66,25 @@ def test_user(client):
 
 
 @pytest.fixture()
+def test_user2(client):
+    """fixture that creates test user"""
+
+    # create dummy user data
+    user_data = {
+        "email": "hi123@gmail.com",
+        "password": "password123"
+    }
+    # create user with api
+    res = client.post("/users/", json=user_data)
+    assert res.status_code == 201
+
+    # we pass in password too because doesnt its not ruturned in create user 
+    new_user = res.json()
+    new_user['password'] = user_data["password"]
+    return new_user
+
+
+@pytest.fixture()
 def token(test_user):
     """fixture that creates taken from test_user fixture"""
     return create_access_token({"user_id": test_user['id']})
@@ -83,7 +102,7 @@ def authorized_client(client, token):
     return client
 
 @pytest.fixture
-def test_posts(test_user, session):
+def test_posts(test_user, session, test_user2):
     posts_data = [{
         "title": "first title",
         "content": "first content",
@@ -96,6 +115,10 @@ def test_posts(test_user, session):
         "title": "3rd title",
         "content": "3rd content",
         "owner_id": test_user['id']
+    },{
+        "title": "4rth title",
+        "content": "4rth content",
+        "owner_id": test_user2['id']
     }]
 
     # decompose **kwargs for models.Post() for each entry, conver to list, add to db
