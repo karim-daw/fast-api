@@ -9,6 +9,15 @@ on:
         - "test_branch"
 jobs:
   job1:
+    env:
+      DATABASE_HOSTNAME: localhost
+      DATABASE_PORT: 5432
+      DATABASE_PASSWORD: password123
+      DATABASE_NAME: fastapi
+      SECRET_KEY: 481495a86cf3e0ee73cb7abcec6cc87c233c6a26e5ed109606f9646c15f7b09e
+      ALGORYTHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo
