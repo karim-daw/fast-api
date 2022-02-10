@@ -14,8 +14,9 @@ jobs:
       DATABASE_PORT: ${{secrets.DATABASE_PORT}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
       DATABASE_NAME: ${{secrets.DATABASE_NAME}}
+      DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
       SECRET_KEY: ${{secrets.SECRET_KEY}}
-      ALGORYTHM: ${{secrets.ALGORYTHM}}
+      ALGORITHM: ${{secrets.ALGORITHM}}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
     
     services:
