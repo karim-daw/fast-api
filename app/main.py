@@ -33,5 +33,5 @@ app.include_router(vote.router)
 # root end point
 @app.get("/")
 async def root():
-    return {"message": "Hello World, im Karim!!!"}
+    return {"message": "Hello World, successfully depolyed CI/CD on Heroku"}
 

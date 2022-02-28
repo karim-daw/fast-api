@@ -6,7 +6,7 @@ from app.config import settings
 
 def test_root(client):
     res = client.get("/")
-    assert res.json().get('message') == "Hello World, im Karim!!!"
+    assert res.json().get('message') == "Hello World, successfully depolyed CI/CD on Heroku"
     assert res.status_code == 200
 
 
