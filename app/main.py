@@ -12,7 +12,7 @@ app = FastAPI()
 
 # cors policies
 origins = [
-    "http://localhost:8080",
+    "http://localhost:3000",
     "*"
     ] # declare which origins can access api * would mean public api
 
