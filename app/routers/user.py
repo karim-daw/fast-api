@@ -36,3 +36,24 @@ def get_user(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"User with id: {id} was not found")
     return user
+
+"""@router.get("/me", response_model=schemas.UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+
+    
+    user: _schemas.User = _fastapi.Depends(_services.get_current_user)
+    return user
+
+async def get_current_user(
+    db: Session = Depends(get_db),
+    token: str = _fastapi.Depends(oauth2schema),
+):
+    try:
+        payload = _jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        user = db.query(_models.User).get(payload["id"])
+    except:
+        raise _fastapi.HTTPException(
+            status_code=401, detail="Invalid Email or Password"
+        )
+
+    return _schemas.User.from_orm(user)"""
